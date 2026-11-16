@@ -1,0 +1,7 @@
+Metrica;Formula;Meta;Ciclo_1_Alpha;Ciclo_2_Beta;Ciclo_3_Final;Situacao
+Taxa de Defeitos Criticos;(Defeitos criticos / Total entregas) x 100;<= 2,0%;4,8%;2,4%;1,2%;Aprovado
+Cobertura de Testes Automatizados;(Linhas cobertas / Total testavel) x 100;>= 80,0%;54,0%;72,5%;84,5%;Aprovado
+Tempo Medio de Resposta (500 VUs);Media das requisicoes no pico;< 2,00 s;3,15 s;1,72 s;1,35 s;Aprovado
+Disponibilidade em Homologacao;(Tempo ativo / Tempo total) x 100;>= 99,5%;98,2%;99,4%;99,7%;Aprovado
+Satisfacao dos Usuarios (UAT);(Avaliacoes positivas / Total respostas) x 100;> 85,0%;68,0%;81,0%;89,0%;Aprovado
+Tempo Medio de Correcao (MTTR);Media de horas ate correcao critica;< 24,0 h;31,0 h;18,5 h;14,0 h;Aprovado

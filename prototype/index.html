@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Protótipo QA e LGPD - Raízes do Nordeste</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #f3f4f6; color: #1f2937; padding: 20px; }
+    .container { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+    .card { background: #ffffff; border: 1px solid #d1d5db; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .header { background: #374151; color: #ffffff; padding: 16px; font-weight: bold; text-align: center; }
+    .body { padding: 18px; }
+    label { display: block; font-size: 13px; color: #4b5563; margin-top: 10px; margin-bottom: 4px; }
+    input[type="text"], select { width: 100%; padding: 10px; border: 1px solid #9ca3af; border-radius: 6px; font-size: 14px; }
+    .lgpd-box { margin-top: 16px; background: #f8fafc; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; font-size: 13px; }
+    .lgpd-box h4 { margin: 0 0 6px 0; color: #1e3a8a; }
+    .check-row { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; font-size: 13px; }
+    .btn { width: 100%; margin-top: 14px; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-primary { background: #2563eb; color: #ffffff; }
+    .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+    .btn-success { background: #16a34a; color: #ffffff; }
+    .btn-secondary { background: #e5e7eb; color: #111827; margin-top: 8px; font-size: 13px; padding: 8px; }
+    .status { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 13px; display: none; }
+    .status.ok { display: block; background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .status.warn { display: block; background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .status.err { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .resumo { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="card">
+      <div class="header">Raízes do Nordeste - Fidelidade (LGPD)</div>
+      <div class="body">
+        <label for="nome">Nome Completo *</label>
+        <input id="nome" type="text" value="Maria Silva" />
+
+        <label for="tel">Telefone (WhatsApp) *</label>
+        <input id="tel" type="text" value="(81) 99999-0000" />
+
+        <label for="faixa">Faixa Etária (Opcional)</label>
+        <select id="faixa">
+          <option>Não informar</option>
+          <option selected>25 a 34 anos</option>
+          <option>35 a 44 anos</option>
+        </select>
+
+        <div class="lgpd-box">
+          <h4>Aviso de Privacidade (Lei nº 13.709/2018)</h4>
+          <div>Seus dados são usados apenas para identificar pedidos e gerenciar pontos de fidelidade. Você pode revogar o consentimento ou pedir anonimização a qualquer momento.</div>
+          <div class="check-row">
+            <input type="checkbox" id="aceite" onchange="validarAceite()" />
+            <label for="aceite" style="margin:0;"><strong>[Obrigatório]</strong> Li e aceito a Política de Privacidade (inicia desmarcado).</label>
+          </div>
+          <div class="check-row">
+            <input type="checkbox" id="mkt" />
+            <label for="mkt" style="margin:0;"><strong>[Opcional]</strong> Aceito receber promoções e campanhas juninas.</label>
+          </div>
+        </div>
+
+        <button id="btnCadastrar" class="btn btn-primary" disabled onclick="confirmarCadastro()">Confirmar Cadastro</button>
+        <button class="btn btn-secondary" onclick="anonimizar()">Solicitar Anonimização (Art. 18 LGPD)</button>
+        <div id="statusLgpd" class="status"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="header">Checkout Multicanal (Unidade Recife Centro)</div>
+      <div class="body">
+        <div class="resumo">
+          1x Tapioca Carne de Sol — R$ 18,00<br />
+          1x Cuscuz Recheado — R$ 16,00<br />
+          1x Suco de Caju 400ml — R$ 9,00<br />
+          <strong>Total: R$ 43,00</strong>
+        </div>
+
+        <label for="gatewayModo">Simulador de Gateway de Pagamento (Mock)</label>
+        <select id="gatewayModo">
+          <option value="APROVADO">Simular Pagamento Aprovado</option>
+          <option value="RECUSADO">Simular Pagamento Recusado</option>
+          <option value="TIMEOUT">Simular Timeout (> 5 segundos)</option>
+        </select>
+
+        <button class="btn btn-success" onclick="finalizarPedido()">Finalizar e Pagar</button>
+        <div id="statusPedido" class="status"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    let pedidoChave = "PED-2026-8841-REC";
+    function validarAceite() {
+      document.getElementById("btnCadastrar").disabled = !document.getElementById("aceite").checked;
+    }
+    function confirmarCadastro() {
+      const st = document.getElementById("statusLgpd");
+      st.className = "status ok";
+      st.textContent = "Cadastro confirmado com consentimento registrado. Identificador interno gerado.";
+    }
+    function anonimizar() {
+      document.getElementById("nome").value = "ANONIMIZADO_A9F4B1";
+      document.getElementById("tel").value = "00000000000";
+      document.getElementById("mkt").checked = false;
+      const st = document.getElementById("statusLgpd");
+      st.className = "status warn";
+      st.textContent = "Dados pessoais anonimizados conforme Art. 18 da LGPD.";
+    }
+    function finalizarPedido() {
+      const modo = document.getElementById("gatewayModo").value;
+      const st = document.getElementById("statusPedido");
+      if (modo === "APROVADO") {
+        st.className = "status ok";
+        st.textContent = "Pedido " + pedidoChave + " confirmado e enviado para a cozinha. Estoque reservado.";
+      } else if (modo === "RECUSADO") {
+        st.className = "status err";
+        st.textContent = "Pagamento não autorizado pelo gateway. Reserva de estoque liberada.";
+      } else {
+        st.className = "status warn";
+        st.textContent = "Tempo limite atingido. Pedido em 'Aguardando confirmação' sem duplicidade.";
+      }
+    }
+  </script>
+</body>
+</html>
